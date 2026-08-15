@@ -55,6 +55,38 @@ The initial version will be evaluated based on:
 
 ## Project Status
 
-RadioLabAI is currently in the early planning and setup stage.
+RadioLabAI is currently in V1 implementation.
 
 The project is being developed in small phases. Each phase will be documented so that important decisions, limitations, experiments, and changes can be tracked over time.
+
+
+## Development Setup
+
+RadioLab AI V1 currently uses Python 3.10.
+
+Create and activate a virtual environment on Windows PowerShell:
+
+```powershell
+py -3.10 -m venv .venv
+.\.venv\Scripts\Activate.ps1
+
+```
+
+Install the development dependencies and the project in editable mode:
+
+```powershell
+python -m pip install -r requirements-dev.txt
+python -m pip install -e .
+```
+
+Run the application:
+
+```powershell
+python -m radiolab_ai
+```
+
+Run the tests:
+
+```powershell
+pytest
+```
