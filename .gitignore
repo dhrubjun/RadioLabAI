@@ -30,3 +30,5 @@ models/
 # Temporary files
 tmp/
 temp/
+
+*.egg-info/
