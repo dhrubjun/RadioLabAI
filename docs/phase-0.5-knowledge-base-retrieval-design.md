@@ -388,4 +388,4 @@ Phase 0.5 is complete when:
 * The Phase 0.5 design has been reviewed.
 * This document has been committed and pushed to GitHub.
 
-The Phase 0.5 GitHub issue should be closed only after the document has been reviewed, committed, and pushed.
+
