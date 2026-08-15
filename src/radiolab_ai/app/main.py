@@ -1,2 +1,6 @@
+from radiolab_ai.gui.main_window import create_main_window
+
+
 def main():
-    print("RadioLab AI V1")
+    window = create_main_window()
+    window.mainloop()
