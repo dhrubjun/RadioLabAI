@@ -1,6 +1,8 @@
 import tkinter as tk
 from tkinter import ttk
 
+from radiolab_ai.app.conversation import get_response
+
 
 def create_main_window() -> tk.Tk:
     window = tk.Tk()
@@ -42,19 +44,82 @@ def create_main_window() -> tk.Tk:
     conversation_area = ttk.Frame(main_area)
     conversation_area.grid(row=0, column=0, sticky="nsew")
 
-    empty_state = ttk.Label(
+    conversation_display = tk.Text(
         conversation_area,
-        text="Ask a question about SDR or GNU Radio.",
+        wrap="word",
     )
-    empty_state.pack(expand=True)
+    conversation_display.insert(
+        "end",
+        "Ask a question about SDR or GNU Radio.",
+    )
+    conversation_display.config(state="disabled")
+
+    conversation_scrollbar = ttk.Scrollbar(
+        conversation_area,
+        orient="vertical",
+        command=conversation_display.yview,
+    )
+
+    conversation_display.configure(
+        yscrollcommand=conversation_scrollbar.set,
+    )
+
+    conversation_display.pack(
+        side="left",
+        fill="both",
+        expand=True,
+    )
+
+    conversation_scrollbar.pack(
+        side="right",
+        fill="y",
+    )
 
     input_area = ttk.Frame(main_area)
     input_area.grid(row=1, column=0, sticky="ew", pady=(12, 0))
 
+    def submit_from_keyboard(event):
+        if event.state & 0x0001:
+            return
+
+        submit_message()
+        return "break"
+
     question_input = tk.Text(input_area, height=3, wrap="word")
     question_input.pack(side="left", fill="x", expand=True)
+    question_input.bind("<Return>", submit_from_keyboard)
 
-    send_button = ttk.Button(input_area, text="Send")
+    has_messages = False
+
+    def submit_message():
+        nonlocal has_messages
+
+        message = question_input.get("1.0", "end").strip()
+
+        if not message:
+            return
+
+        response = get_response(message)
+
+        if not has_messages:
+            conversation_display.config(state="normal")
+            conversation_display.delete("1.0", "end")
+            conversation_display.config(state="disabled")
+            has_messages = True
+
+        conversation_display.config(state="normal")
+        conversation_display.insert("end", f"You\n{message}\n\n")
+        conversation_display.insert("end", f"RadioLab AI\n{response}\n\n")
+        conversation_display.see("end")
+        conversation_display.config(state="disabled")
+
+        question_input.delete("1.0", "end")
+
+    send_button = ttk.Button(
+        input_area,
+        text="Send",
+        command=submit_message,
+    )
     send_button.pack(side="left", padx=(8, 0))
 
     return window
