@@ -118,3 +118,47 @@ Stage 4 replaced the temporary mock response path with a real local language mod
 ### Deferred
 
 Stage 4 uses a single current user message and does not yet provide persistent conversation history, retrieval-grounded context, source handling, model benchmarking, advanced generation tuning, or production-level processing-state UI. These remain for later implementation stages.
+
+## Stage 5 - Knowledge Base and Retrieval Integration
+
+**Status:** Complete
+
+Stage 5 introduced the first local knowledge-base and retrieval pipeline and connected retrieved knowledge to the local LLM response flow.
+
+### Implementation
+
+* Added the initial curated SDR knowledge source using a small subset of Chapter 1 from the `sdr-with-gnu-radio` learning project.
+* Added Markdown knowledge loading with source metadata preservation.
+* Added section-based structure-aware chunking with stable chunk IDs.
+* Added keyword retrieval with stop-word filtering and section-heading weighting.
+* Added local semantic embeddings using Ollama and `nomic-embed-text`.
+* Added cosine-similarity semantic retrieval.
+* Added hybrid retrieval using rank-based fusion of keyword and semantic results.
+* Added configurable `top_k` result limiting.
+* Added persistent local JSON index storage for chunk content, metadata, and embeddings.
+* Added an index-building path so knowledge chunks and embeddings can be prepared once and reused.
+* Kept generated index data under the ignored local `data/` directory rather than committing generated embeddings to Git.
+* Added a high-level retrieval interface that hides index and search implementation details from the application layer.
+* Added grounded prompt construction in the application layer.
+* Updated the conversation flow so retrieved local knowledge is provided to the existing local LLM before response generation.
+
+### Testing
+
+* Added unit tests for Markdown loading and malformed metadata handling.
+* Added unit tests for section chunking and stable chunk IDs.
+* Added unit tests for keyword retrieval, heading weighting, and `top_k` behavior.
+* Added unit tests for embedding integration using mocked Ollama calls.
+* Added unit tests for cosine similarity and semantic retrieval.
+* Added unit tests for hybrid rank fusion.
+* Added unit tests for index storage, index building, and the high-level retriever.
+* Added unit tests for grounded prompt construction and retrieval-aware conversation orchestration.
+* Verified that the full unit-test suite passes with 20 tests.
+* Manually verified retrieval against the persistent index.
+* Manually verified grounded local-LLM answers for ADC behavior and traditional-radio-versus-SDR questions.
+* Measured persistent-index retrieval at approximately 0.1 seconds and typical warm grounded response generation at approximately 7 seconds on the current development machine; cold-start responses may take longer.
+
+### Deferred
+
+Stage 5 intentionally uses only a small initial Markdown knowledge subset while retrieval behavior is validated. Expansion to additional chapters and document formats remains incremental.
+
+Retrieval-quality gating, insufficient-evidence handling, user-facing source presentation, citation behavior, conflicting-source handling, and broader fallback behavior are deferred to Stage 6.
