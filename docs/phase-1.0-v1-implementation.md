@@ -86,3 +86,35 @@ Stage 3 established the first working end-to-end conversation flow through the G
 ### Deferred
 
 Stage 3 intentionally uses mock responses only. Local LLM integration, retrieval, tools, source handling, persistent conversation history, processing states, and other advanced interaction behavior remain deferred to later implementation stages.
+
+## Stage 4 - Local LLM Integration
+
+**Status:** Complete
+
+Stage 4 replaced the temporary mock response path with a real local language model integration using Ollama.
+
+### Implementation
+
+* Added the official Ollama Python client as a runtime dependency.
+* Added a dedicated `llm` package to isolate local-model integration from the rest of the application.
+* Added an Ollama client using `llama3.1:8b` as the initial integration model.
+* Added a small system prompt to establish the RadioLab AI SDR, GNU Radio, and DSP context.
+* Replaced the Stage 3 mock response path with the real local LLM response path.
+* Added a RadioLab AI-specific `LLMError` to isolate Ollama-specific failures.
+* Added background-thread generation so local-model inference does not block the Tkinter GUI.
+* Kept all Tkinter widget updates on the main GUI thread.
+* Added basic LLM response-time logging.
+* Verified typical warm short-response generation at approximately 5 seconds on the current development machine.
+
+### Testing
+
+* Updated the conversation-layer unit test to mock the LLM instead of calling the real model.
+* Added unit tests for successful Ollama response handling.
+* Added a unit test verifying that Ollama failures are converted to `LLMError`.
+* Verified that the full unit-test suite passes.
+* Manually verified end-to-end GUI interaction with the local model.
+* Verified that the GUI remains responsive while the model generates a response.
+
+### Deferred
+
+Stage 4 uses a single current user message and does not yet provide persistent conversation history, retrieval-grounded context, source handling, model benchmarking, advanced generation tuning, or production-level processing-state UI. These remain for later implementation stages.

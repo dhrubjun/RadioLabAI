@@ -1,7 +1,9 @@
+import threading
 import tkinter as tk
 from tkinter import ttk
 
 from radiolab_ai.app.conversation import get_response
+from radiolab_ai.llm.ollama_client import LLMError
 
 
 def create_main_window() -> tk.Tk:
@@ -91,6 +93,23 @@ def create_main_window() -> tk.Tk:
 
     has_messages = False
 
+    def generate_response_in_background(message: str):
+        try:
+            response = get_response(message)
+        except LLMError:
+            response = (
+                "RadioLab AI could not reach the local model. "
+                "Please make sure Ollama is running and the configured model is installed."
+            )
+
+        window.after(0, display_response, response)
+
+    def display_response(response: str):
+        conversation_display.config(state="normal")
+        conversation_display.insert("end", f"RadioLab AI\n{response}\n\n")
+        conversation_display.see("end")
+        conversation_display.config(state="disabled")
+
     def submit_message():
         nonlocal has_messages
 
@@ -98,8 +117,6 @@ def create_main_window() -> tk.Tk:
 
         if not message:
             return
-
-        response = get_response(message)
 
         if not has_messages:
             conversation_display.config(state="normal")
@@ -109,11 +126,17 @@ def create_main_window() -> tk.Tk:
 
         conversation_display.config(state="normal")
         conversation_display.insert("end", f"You\n{message}\n\n")
-        conversation_display.insert("end", f"RadioLab AI\n{response}\n\n")
         conversation_display.see("end")
         conversation_display.config(state="disabled")
 
         question_input.delete("1.0", "end")
+
+        worker = threading.Thread(
+            target=generate_response_in_background,
+            args=(message,),
+            daemon=True,
+        )
+        worker.start()
 
     send_button = ttk.Button(
         input_area,
